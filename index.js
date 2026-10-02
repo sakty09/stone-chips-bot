@@ -2,19 +2,18 @@ const { Client, LocalAuth } = require('whatsapp-web.js');
 const qrcode = require('qrcode-terminal');
 const http = require('http');
 
-// 1. Render के पोर्ट एरर को रोकने के लिए एक छोटा फर्जी सर्वर बनाना
+// Render पोर्ट बाइंडिंग फिक्स
 const port = process.env.PORT || 10000;
 http.createServer((req, res) => {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
-    res.end('Bot handles stone chips requests perfectly!');
-}).listen(port, '0.0.0.0', () => {
-    console.log(`फर्जी सर्वर चालू है पोर्ट: ${port}`);
-});
+    res.end('Stone chips bot is running smoothly!');
+}).listen(port, '0.0.0.0');
 
-// 2. व्हाट्सऐप बॉट का मुख्य सेटअप
+// व्हाट्सऐप क्लाइंट कॉन्फ़िगरेशन (Docker Path के साथ)
 const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
+        executablePath: '/usr/bin/google-chrome-stable', // Docker के क्रोम का सही रास्ता
         headless: true,
         args: [
             '--no-sandbox',
@@ -25,18 +24,18 @@ const client = new Client({
     }
 });
 
-// 3. Render लॉग्स में QR कोड दिखाना
+// Render Logs में QR कोड प्रिंट करना
 client.on('qr', (qr) => {
     console.log('👉 --- QR CODE START --- 👈');
     qrcode.generate(qr, { small: true });
-    console.log('👉 --- ऊपर दिए गए कोड को स्कैन करें --- 👈');
+    console.log('👉 --- ऊपर दिए गए QR कोड को स्कैन करें --- 👈');
 });
 
 client.on('ready', () => {
-    console.log('✅ बधाई हो! आपका स्टोन चिप्स बॉट अब क्लाउड पर 24 घंटे लाइव है!');
+    console.log('✅ बधाई हो! आपका स्टोन चिप्स बॉट अब पूरी तरह लाइव है!');
 });
 
-// 4. कस्टमर रिप्लाई लॉजिक
+// कस्टमर रिप्लाई (गिट्टी बिज़नेस ऑप्शंस)
 client.on('message', async (msg) => {
     const input = msg.body.trim().toLowerCase();
 
