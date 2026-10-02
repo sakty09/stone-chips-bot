@@ -1,6 +1,17 @@
 const { Client, LocalAuth } = require('whatsapp-web.js');
 const qrcode = require('qrcode-terminal');
+const http = require('http');
 
+// 1. Render के पोर्ट एरर को रोकने के लिए एक छोटा फर्जी सर्वर बनाना
+const port = process.env.PORT || 10000;
+http.createServer((req, res) => {
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.end('Bot handles stone chips requests perfectly!');
+}).listen(port, '0.0.0.0', () => {
+    console.log(`फर्जी सर्वर चालू है पोर्ट: ${port}`);
+});
+
+// 2. व्हाट्सऐप बॉट का मुख्य सेटअप
 const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
@@ -9,27 +20,23 @@ const client = new Client({
             '--no-sandbox',
             '--disable-setuid-sandbox',
             '--disable-dev-shm-usage',
-            '--disable-accelerated-2d-canvas',
-            '--no-first-run',
-            '--no-zygote',
-            '--single-process',
             '--disable-gpu'
         ]
     }
 });
 
-// जब सर्वर पर QR कोड जनरेट होगा, यह उसे टर्मिनल (Logs) में दिखाएगा
+// 3. Render लॉग्स में QR कोड दिखाना
 client.on('qr', (qr) => {
-    console.log('--- QR CODE START ---');
+    console.log('👉 --- QR CODE START --- 👈');
     qrcode.generate(qr, { small: true });
-    console.log('--- ऊपर दिए गए QR कोड को दूसरे फ़ोन से फोटो खींचकर स्कैन करें ---');
+    console.log('👉 --- ऊपर दिए गए कोड को स्कैन करें --- 👈');
 });
 
 client.on('ready', () => {
-    console.log('✅ आपका स्टोन चिप्स बॉट अब 24 घंटे के लिए एक्टिव है!');
+    console.log('✅ बधाई हो! आपका स्टोन चिप्स बॉट अब क्लाउड पर 24 घंटे लाइव है!');
 });
 
-// कस्टमर के मैसेज का जवाब देना
+// 4. कस्टमर रिप्लाई लॉजिक
 client.on('message', async (msg) => {
     const input = msg.body.trim().toLowerCase();
 
@@ -37,7 +44,7 @@ client.on('message', async (msg) => {
         const welcomeText = 
 `🏗️ *रामेश्वर स्टोन क्रशर & चिप्स* में आपका स्वागत है! 🙏
 
-कृपया नीचे दिए गए विकल्पों में से किसी एक का नंबर टाइप करके जवाब दें:
+कृपया किसी एक विकल्प का नंबर टाइप करके जवाब दें:
 *1.* गिट्टी के साइज और रेट (Rates) 💰
 *2.* डिलीवरी लोकेशन (Delivery Info) 🚛
 *3.* नया ऑर्डर बुक करें (Book Order) 📝
